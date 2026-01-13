@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sirkus Matematika: Bilangan Rasional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* CSS STYLE */
+        :root {
+            --maroon: #800000;
+            --yellow: #FFD700;
+            --white: #ffffff;
+            --dark-red: #5a0000;
+        }
+
+        body {
+            background-color: var(--maroon);
+            background-image: radial-gradient(var(--dark-red) 20%, transparent 20%),
+                              radial-gradient(var(--dark-red) 20%, transparent 20%);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            font-family: 'Poppins', sans-serif;
+            color: var(--white);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 650px;
+            width: 100%;
+            background: var(--maroon);
+            border: 8px solid var(--yellow);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        /* Dekorasi Tenda */
+        .container::before {
+            content: "";
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 50px solid transparent;
+            border-right: 50px solid transparent;
+            border-bottom: 50px solid var(--yellow);
+            z-index: -1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px double var(--yellow);
+            padding-bottom: 10px;
+        }
+
+        h1 {
+            font-family: 'Bangers', cursive;
+            font-size: 3rem;
+            color: var(--yellow);
+            margin: 0;
+            letter-spacing: 3px;
+            text-shadow: 3px 3px var(--dark-red);
+        }
+
+        .question-box {
+            display: none; /* Muncul satu per satu via JS */
+        }
+
+        .question-box.active {
+            display: block;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--yellow);
+            font-weight: 600;
+        }
+
+        .options-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .option-item {
+            background: var(--dark-red);
+            border: 2px solid var(--yellow);
+            margin-bottom: 10px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .option-item:hover {
+            background: var(--yellow);
+            color: var(--maroon);
+        }
+
+        .option-item.selected {
+            background: var(--yellow);
+            color: var(--maroon);
+            font-weight: bold;
+        }
+
+        .footer-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        button {
+            background: var(--yellow);
+            color: var(--maroon);
+            border: none;
+            padding: 10px 25px;
+            font-family: 'Bangers', cursive;
+            font-size: 1.2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 var(--dark-red);
+        }
+
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--dark-red);
+        }
+
+        button:disabled {
+            background: #999;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        #result-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .score {
+            font-size: 4rem;
+            color: var(--yellow);
+            font-family: 'Bangers', cursive;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: var(--dark-red);
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        #progress-fill {
+            height: 100%;
+            background: var(--yellow);
+            width: 0%;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>SIRKUS RASIONAL</h1>
+        <p style="color: var(--yellow); margin: 0;">Asah Kemampuan Bilangan Rasional Anda!</p>
+    </header>
+
+    <div class="progress-bar">
+        <div id="progress-fill"></div>
+    </div>
+
+    <div id="quiz-content">
+        <!-- Soal akan diisi oleh JavaScript -->
+    </div>
+
+    <div class="footer-nav">
+        <button id="prev-btn" onclick="moveQuestion(-1)" disabled>Kembali</button>
+        <button id="next-btn" onclick="moveQuestion(1)">Lanjut</button>
+    </div>
+
+    <div id="result-screen">
+        <h2>PERSELINGAN SELESAI!</h2>
+        <p>Skor Anda:</p>
+        <div class="score" id="final-score">0</div>
+        <p id="feedback-msg"></p>
+        <button onclick="location.reload()">Ulangi Atraksi</button>
+    </div>
+</div>
+
+<script>
+    // DATA SOAL (Bukan Soal Cerita)
+    const questions = [
+        { q: "Manakah di antara bilangan berikut yang merupakan bilangan rasional?", a: ["√2", "π", "0,75", "√3"], c: 2 },
+        { q: "Bentuk desimal dari pecahan 3/8 adalah...", a: ["0,375", "0,38", "0,83", "0,125"], c: 0 },
+        { q: "Bentuk pecahan biasa yang paling sederhana dari 0,6 adalah...", a: ["1/6", "3/5", "6/10", "2/3"], c: 1 },
+        { q: "Hasil dari 1/2 + 0,25 adalah...", a: ["0,30", "0,50", "0,75", "1,25"], c: 2 },
+        { q: "Hasil dari 1,2 - 3/4 dalam bentuk desimal adalah...", a: ["0,45", "0,50", "0,25", "0,85"], c: 0 },
+        { q: "Hasil kali dari 0,5 × 2/5 adalah...", a: ["0,1", "0,2", "0,5", "1,0"], c: 1 },
+        { q: "Hasil bagi dari 0,8 : 1/2 adalah...", a: ["0,4", "1,2", "1,6", "2,0"], c: 2 },
+        { q: "Manakah pernyataan yang benar?", a: ["-0,5 > -0,2", "1/4 < 0,1", "0,3 > 1/5", "-1/2 = 0,5"], c: 2 },
+        { q: "Urutan dari yang terkecil: 0,3 ; 1/4 ; 0,2 adalah...", a: ["0,2 ; 1/4 ; 0,3", "1/4 ; 0,2 ; 0,3", "0,3 ; 0,2 ; 1/4", "0,2 ; 0,3 ; 1/4"], c: 0 },
+        { q: "Bentuk persen dari 4/5 adalah...", a: ["40%", "50%", "75%", "80%"], c: 3 }
+    ];
+
+    let currentIdx = 0;
+    let userAnswers = new Array(questions.length).fill(null);
+
+    function initQuiz() {
+        const quizContent = document.getElementById('quiz-content');
+        let html = '';
+        
+        questions.forEach((item, idx) => {
+            html += `
+                <div class="question-box" id="q-${idx}">
+                    <div class="question-text">${idx + 1}. ${item.q}</div>
+                    <ul class="options-list">
+                        ${item.a.map((opt, optIdx) => `
+                            <li class="option-item" onclick="selectOption(${idx}, ${optIdx})" id="q-${idx}-o-${optIdx}">
+                                ${String.fromCharCode(65 + optIdx)}. ${opt}
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+        });
+        
+        quizContent.innerHTML = html;
+        showQuestion(0);
+    }
+
+    function showQuestion(idx) {
+        document.querySelectorAll('.question-box').forEach(box => box.classList.remove('active'));
+        document.getElementById(`q-${idx}`).classList.add('active');
+        
+        document.getElementById('prev-btn').disabled = idx === 0;
+        document.getElementById('next-btn').innerText = idx === questions.length - 1 ? "Selesai" : "Lanjut";
+        
+        // Progress bar
+        document.getElementById('progress-fill').style.width = ((idx + 1) / questions.length * 100) + '%';
+    }
+
+    window.selectOption = function(qIdx, oIdx) {
+        userAnswers[qIdx] = oIdx;
+        const options = document.querySelectorAll(`#q-${qIdx} .option-item`);
+        options.forEach(opt => opt.classList.remove('selected'));
+        document.getElementById(`q-${qIdx}-o-${oIdx}`).classList.add('selected');
+    };
+
+    window.moveQuestion = function(step) {
+        if (step === 1 && userAnswers[currentIdx] === null) {
+            alert("Silakan pilih jawaban terlebih dahulu!");
+            return;
+        }
+
+        currentIdx += step;
+
+        if (currentIdx >= questions.length) {
+            calculateScore();
+        } else {
+            showQuestion(currentIdx);
+        }
+    };
+
+    function calculateScore() {
+        let score = 0;
+        userAnswers.forEach((ans, idx) => {
+            if (ans === questions[idx].c) score += 10;
+        });
+
+        document.getElementById('quiz-content').style.display = 'none';
+        document.querySelector('.footer-nav').style.display = 'none';
+        document.querySelector('.progress-bar').style.display = 'none';
+        
+        const resultScreen = document.getElementById('result-screen');
+        resultScreen.style.display = 'block';
+        document.getElementById('final-score').innerText = score;
+
+        let msg = "";
+        if (score >= 80) msg = "Luar Biasa! Kamu adalah Bintang Sirkus!";
+        else if (score >= 60) msg = "Bagus! Kamu punya bakat matematis!";
+        else msg = "Terus berlatih untuk pertunjukan berikutnya!";
+        
+        document.getElementById('feedback-msg').innerText = msg;
+    }
+
+    initQuiz();
+</script>
+
+</body>
+</html>
